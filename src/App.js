@@ -1,101 +1,154 @@
-import React, { Component } from 'react';
-import './App.css';
+import React, { Component, useMemo } from 'react';
 
 class App extends Component {
   render() {
     return (
       <main>
-        <Menu />
+        <h1>Animals</h1>
+        <Gallery />
       </main>
     );
   }
 }
 
-//пример классового компонента с props
-// class Menu extends Component {
-//   render() {
-//     return (
-//       <nav className='navbar'>
-//         <h1 className='title'>TheMenuCompany</h1>
-//         <ul className='menu'>
-//           <MenuItem label='Home' href='/' />
-//           <MenuItem label='About' href='/about/' />
-//           <MenuItem label='Blog' href='/blog' />
-//         </ul>
-//       </nav>
-//     );
-//   }
-// }
+//Вариант 1 - когда мы просто рендерим компонент
 
-//пример функционального компонента
-function Menu() {
-  return (
-    <nav className='navbar'>
-      <h1 className='title'>TheMenuCompany</h1>
-      <ul className='menu'>
-        <MenuItem label='Home' href='/' />
-        <MenuItem label='About' href='/about/' />
-        <MenuItem label='Blog' href='/blog' />
-      </ul>
-    </nav>
-  );
+class Gallery extends Component {
+  render() {
+    return (
+      <section style={{ display: 'flex' }}>
+        <Image index='1003' title='Deer' />
+        <Image index='1020' title='Bear' />
+        <Image index='1024' title='Vulture' />
+        <Image index='1084' title='Walrus' />
+      </section>
+    );
+  }
 }
 
-//пример классового компонента с props
-// class MenuItem extends Component {
+// function Gallery() {
+//   return (
+//     <section style={{ display: 'flex' }}>
+//       <Image index='1003' title='Deer' />
+//       <Image index='1020' title='Bear' />
+//       <Image index='1024' title='Vulture' />
+//       <Image index='1084' title='Walrus' />
+//     </section>
+//   );
+// }
+
+// class Image extends Component {
 //   render() {
 //     return (
-//       <li className='menu-item'>
-//         <a className='menu-link' href={this.props.href}>
-//           {this.props.label}
-//         </a>
-//       </li>
+//       <figure style={{ margin: '5px' }}>
+//         <img src={`//picsum.photos/id/${this.props.index}/150/150/`} alt={this.props.title} />
+//         <figcaption>
+//           <h3>Species: {this.props.title}</h3>
+//         </figcaption>
+//       </figure>
 //     );
 //   }
 // }
 
-//пример функционального компонента с props
-// function MenuItem(props) {
+// function Image({ index, title }) {
 //   return (
-//     <li className='menu-item'>
-//       <a className='menu-link' href={props.href}>
-//         {props.label}
-//       </a>
-//     </li>
+//     <figure style={{ margin: '5px' }}>
+//       <img src={`//picsum.photos/id/${index}/150/150/`} alt={title} />
+//       <figcaption>
+//         <h3>Species: {title}</h3>
+//       </figcaption>
+//     </figure>
 //   );
 // }
 
-//деструктуризация пропсов
-// function MenuItem({ href, label }) {
+// Вариант-2, когда метод прописан утилита (URL картинки)
+
+// class Image extends Component {
+//   getImageSource(index) {
+//     return `//picsum.photos/id/${index}/150/150/`;
+//   }
+//   render() {
+//     return (
+//       <figure style={{ margin: '5px' }}>
+//         <img src={this.getImageSource(this.props.index)} alt={this.props.title} />
+//         <figcaption>
+//           <h3>Species: {this.props.title}</h3>
+//         </figcaption>
+//       </figure>
+//     );
+//   }
+// }
+
+// function getImageSource(index) {
+//   return `//picsum.photos/200/100/animals/${index}/`;
+// }
+// function Image({ index, title }) {
 //   return (
-//     <li className='menu-item'>
-//       <a className='menu-link' href={href}>
-//         {label}
-//       </a>
-//     </li>
+//     <figure style={{ margin: '5px' }}>
+//       <img src={getImageSource(index)} alt={title} />
+//       <figcaption>Species: {title}</figcaption>
+//     </figure>
 //   );
 // }
 
-//указание деструктуризации внутри компонента
-// function MenuItem({ props }) {
-//   const { href, label } = props;
+// Вариант-3, когда метод внутри класса
+
+// class Image extends Component {
+//   getImageSource() {
+//     return `//picsum.photos/id/${this.props.index}/150/150/`;
+//   }
+//   render() {
+//     return (
+//       <figure style={{ margin: '5px' }}>
+//         <img src={this.getImageSource()} alt={this.props.title} />
+//         <figcaption>
+//           <h3>Species: {this.props.title}</h3>
+//         </figcaption>
+//       </figure>
+//     );
+//   }
+// }
+
+// function Image({ index, title }) {
+//   const getImageSource = () => `//picsum.photos/id/${index}/150/150/`;
 //   return (
-//     <li className='menu-item'>
-//       <a className='menu-link' href={href}>
-//         {label}
-//       </a>
-//     </li>
+//     <figure style={{ margin: '5px' }}>
+//       <img src={getImageSource()} alt={title} />
+//       <figcaption>
+//         <h3>Species: {title}</h3>
+//       </figcaption>
+//     </figure>
 //   );
 // }
 
-//использование rest и spread в функциональном компоненте
-function MenuItem({ label, href, ...rest }) {
+//Вариант-4, с использованием конструктора
+
+// class Image extends Component {
+//   constructor(props) {
+//     super(props);
+//     this.id = `image-${Math.floor(Math.random() * 1000000)}`;
+//   }
+//   render() {
+//     return (
+//       <figure style={{ margin: '5px' }} id={this.id}>
+//         <img src={`//picsum.photos/id/${this.props.index}/150/150/`} alt={this.props.title} />
+//         <figcaption>
+//           <h3>Species: {this.props.title}</h3>
+//         </figcaption>
+//       </figure>
+//     );
+//   }
+// }
+
+function Image({ index, title }) {
+  const id = useMemo(() => `image-${Math.floor(Math.random() * 1000000)}`, []);
   return (
-    <li className='menu-item'>
-      <a className='menu-link' href={href} {...rest}>
-        {label}
-      </a>
-    </li>
+    <figure style={{ margin: '5px' }} id={id}>
+      <img src={`//picsum.photos/id/${index}/150/150/`} alt={title} />
+      <figcaption>
+        <h3>Species: {title}</h3>
+      </figcaption>
+    </figure>
   );
 }
 
