@@ -1,259 +1,252 @@
-import { useState, Component } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-//использование useState
-// function Counter() {
-//   const [counter, setCounter] = useState(0);
+//получение внешних данных (необходимо только монтирование компонента)
+// function RemoteDropdown() {
+//   const [options, setOptions] = useState([]);
+//   useEffect(() => {
+//     fetch('//www.swapi.tech/api/people')
+//       .then((res) => res.json())
+//       .then((data) => setOptions(data.results.map(({ name }) => name)));
+//   }, []);
 //   return (
-//     <main>
-//       <p>Clicks: {counter}</p>
-//       <button onClick={() => setCounter((value) => value + 1)}>Increment</button>
-//     </main>
+//     <select>
+//       {options.map((option) => (
+//         <option key={option}>{option}</option>
+//       ))}
+//     </select>
 //   );
 // }
 // function App() {
-//   return <Counter />;
+//   return <RemoteDropdown />;
 // }
 // export default App;
 
-//пример использования useState с разными начальными значениями
-// function Counter({ start }) {
-//   const [counter, setCounter] = useState(start);
-//   return (
-//     <main>
-//       <p>Counter: {counter}</p>
-//       <button onClick={() => setCounter((value) => value + 1)}>Increment</button>
-//     </main>
-//   );
+//монтирование и размонтирование компонента
+// function Stopwatch() {
+//   const [seconds, setSeconds] = useState(0);
+//   useEffect(() => {
+//     const interval = setInterval(() => setSeconds((seconds) => seconds + 1), 1000);
+//     return () => clearInterval(interval);
+//   }, []);
+//   return <h1>Seconds: {seconds}</h1>;
 // }
 // function App() {
+//   const [showWatch, setShowWatch] = useState(false);
 //   return (
 //     <>
-//       <Counter start={0} />
-//       <Counter start={123} />
-//       <Counter start={-64} />
+//       <button onClick={() => setShowWatch((b) => !b)}>Toggle watch</button>
+//       {showWatch && <Stopwatch />}
 //     </>
 //   );
 // }
 // export default App;
 
-//установка state
-// function Accordion() {
-//   const [isExpanded, setExpanded] = useState(false);
+//отмена запроса в функции 1й варинт (предпочтительнее)
+// useEffect(() => {
+//   const controller = new AbortController();
+//   fetch(url, { controller }).then((data) => {
+//     // handle the data
+//   });
+//   return () => {
+//     controller.abort();
+//   };
+// }, []);
+
+//отмена запроса в функции 2й вариант
+// useEffect(() => {
+//   let mounted = true;
+//   fetch(url).then((data) => {
+//     if (!mounted) {
+//       return;
+//     }
+//     // handle the data
+//   });
+//   return () => {
+//     mounted = false;
+//   };
+// }, []);
+
+// запуск очистки при размонтировании
+// function Dialog() {
+//   useEffect(() => () => trackEvent('dialog_dismissed'), []);
+// rest of component goes here
+// }
+
+//использование массива зависимостей
+// function BlogPost({ title, body }) {
+//   useEffect(() => {
+//     document.title = title;
+//   }, [title]);
 //   return (
-//     <main>
-//       <h2 style={{ display: 'flex', gap: '6px' }}>
-//         Secret password
-//         <button onClick={() => setExpanded(false)}>-</button>
-//         <button onClick={() => setExpanded(true)}>+</button>
-//       </h2>
-//       {isExpanded && (
-//         <p>
-//           Password: <code>hunter2</code>
-//         </p>
-//       )}
-//     </main>
-//   );
-// }
-
-// function App() {
-//   return <Accordion />;
-// }
-
-// export default App;
-
-//настройка функции для state
-// const PLUS = (a, b) => a + b;
-// const MINUS = (a, b) => a - b;
-// const MULTIPLY = (a, b) => a * b;
-// function Calculator({ a, b }) {
-//   const [operator, setOperator] = useState(() => PLUS);
-//   return (
-//     <main>
-//       <h1>Calculator</h1>
-//       <button onClick={() => setOperator(() => PLUS)}>Plus</button>
-//       <button onClick={() => setOperator(() => MINUS)}>Minus</button>
-//       <button onClick={() => setOperator(() => MULTIPLY)}>Multiply</button>
-//       <p>
-//         Result of applying operator to {a} and {b}:<code> {operator(a, b)}</code>
-//       </p>
-//     </main>
-//   );
-// }
-
-// function App() {
-//   return <Calculator a={7} b={4} />;
-// }
-
-// export default App;
-
-//рендеринг страницы
-// function Counter() {
-//   const [counter, setCounter] = useState(0);
-//   return (
-//     <main>
-//       <p>Counter: {counter}</p>
-//       <button onClick={() => setCounter((value) => value + 1)}>Increment</button>
-//       <button onClick={() => setCounter(0)}>Reset</button>
-//     </main>
-//   );
-// }
-
-//обработка state при передаче ему массива данных
-// function App() {
-//   return <Counter />;
-// }
-// export default App;
-
-// function TodoApplication({ initialList }) {
-//   const [todos, setTodos] = useState(initialList);
-//   return (
-//     <main>
-//       {todos.map((todo, index) => (
-//         <p key={todo}>
-//           {todo}
-//           <button
-//             onClick={() => {
-//               todos.splice(index, 1);
-//               setTodos(todos);
-//             }}
-//           >
-//             x
-//           </button>
-//         </p>
-//       ))}
-//     </main>
-//   );
-// }
-
-// function TodoApplication({ initialList }) {
-//   const [todos, setTodos] = useState(initialList);
-//   return (
-//     <main>
-//       {todos.map((todo, index) => (
-//         <p key={todo}>
-//           {todo}
-//           <button
-//             onClick={() => {
-//               setTodos((value) => [...value.slice(0, index), ...value.slice(index + 1)]);
-//             }}
-//           >
-//             x
-//           </button>
-//         </p>
-//       ))}
-//     </main>
+//     <article>
+//       <h1>{title}</h1>
+//       {body}
+//     </article>
 //   );
 // }
 // function App() {
-//   const items = ['Feed the plants', 'Water the dishes', 'Clean the cat'];
-//   return <TodoApplication initialList={items} />;
+//   return (
+//     <main>
+//       <BlogPost title='First post' body={<p>Welcome to my cool website.</p>} />
+//     </main>
+//   );
 // }
 // export default App;
 
-// использование нескольких state
-
-// function markDone(list, index) {
-//   return list.map((item, i) => (i === index ? { ...item, done: true } : item));
+// function EmailInput({ value }) {
+//   const [email, setEmail] = useState('');
+//   useEffect(() => setEmail(value), [value]);
+//   return (
+//     <label>
+//       Email address:
+//       <input type='email' value={email} onChange={(evt) => setEmail(evt.target.value)} />
+//     </label>
+//   );
 // }
-// function TodoApplication({ initialList }) {
-//   const [todos, setTodos] = useState(initialList);
-//   const [hideDone, setHideDone] = useState(false);
-//   const filteredTodos = hideDone ? todos.filter(({ done }) => !done) : todos;
+// const EMAIL1 = 'daffyduck@looneytunes.invalid';
+// const EMAIL2 = 'bugsbunny@looneytunes.invalid';
+// const EMAIL3 = 'elmerfudd@looneytunes.invalid';
+// function App() {
+//   const [defaultEmail, setDefaultEmail] = useState(EMAIL1);
 //   return (
 //     <main>
-//       <div style={{ display: 'flex' }}>
-//         <button onClick={() => setHideDone(false)}>Show all</button>
-//         <button onClick={() => setHideDone(true)}>Hide done</button>
+//       <button onClick={() => setDefaultEmail(EMAIL1)}>Use {EMAIL1}</button>
+//       <br />
+//       <button onClick={() => setDefaultEmail(EMAIL2)}>Use {EMAIL2}</button>
+//       <br />
+//       <button onClick={() => setDefaultEmail(EMAIL3)}>Use {EMAIL3}</button>
+//       <br />
+//       <EmailInput value={defaultEmail} />
+//     </main>
+//   );
+// }
+// export default App;
+
+//очистка некоторых рендеров
+
+// function Countdown({ from }) {
+//   const [seconds, setSeconds] = useState(from);
+//   const [isRunning, setRunning] = useState(false);
+//   useEffect(() => {
+//     if (!isRunning) {
+//       return;
+//     }
+//     const interval = setInterval(
+//       () =>
+//         setSeconds((value) => {
+//           if (value <= 1) {
+//             setRunning(false);
+//           }
+//           return value - 1;
+//         }),
+//       1000
+//     );
+//     return () => clearInterval(interval);
+//   }, [isRunning]);
+//   return (
+//     <section>
+//       <h2>Time left: {seconds} seconds</h2>
+//       <button onClick={() => setSeconds(from)}>Reset</button>
+//       <button onClick={() => setRunning((v) => !v)} disabled={seconds === 0}>
+//         {isRunning ? 'Pause' : 'Resume'}
+//       </button>
+//     </section>
+//   );
+// }
+// function App() {
+//   return <Countdown from={10} />;
+// }
+// export default App;
+
+//пример как не рендерить компонент в родительском компоненте
+// function Die() {
+//   const style = {
+//     border: '2px solid black',
+//     display: 'inline-block',
+//     width: '2em',
+//     height: '2em',
+//     textAlign: 'center',
+//     lineHeight: 2,
+//   };
+//   const value = Math.floor(6 * Math.random());
+//   return <span style={style}>{value}</span>;
+// }
+// function DiceRoller() {
+//   const [rolls, setRolls] = useState(1);
+//   return (
+//     <main>
+//       <h1>Rolls: {rolls}</h1>
+//       <button onClick={() => setRolls((r) => r + 1)}>Re-roll</button>
+//       <div>
+//         <Die />
+//         <Die />
+//         <Die />
 //       </div>
-//       {filteredTodos.map((todo, index) => (
-//         <p key={todo.task}>
-//           {todo.done ? (
-//             <strike>{todo.task}</strike>
-//           ) : (
-//             <>
-//               {todo.task}
-//               <button onClick={() => setTodos((value) => markDone(value, todo.index))}>x</button>
-//             </>
-//           )}
-//         </p>
-//       ))}
 //     </main>
 //   );
 // }
-
 // function App() {
-//   const items = [
-//     { task: 'Feed the plants', done: false, index: 0 },
-//     { task: 'Water the dishes', done: false, index: 1 },
-//     { task: 'Clean the cat', done: false, index: 2 },
-//   ];
-//   return <TodoApplication initialList={items} />;
+//   return <DiceRoller />;
 // }
 // export default App;
 
-// передача state компонентам
-function markDone(list, index) {
-  return list.map((item, i) => (i === index ? { ...item, done: true } : item));
+//пример рендеринга на основе state
+//плохой вариант
+// function BlinkingBackground() {
+//   const [left, setLeft] = useState(0);
+//   const onMouseMove = (evt) => setLeft(evt.nativeEvent.offsetX);
+//   const style = {
+//     backgroundColor: left < 100 ? 'blue' : 'red',
+//   };
+//   return <div style={style} onMouseMove={onMouseMove} />;
+// }
+
+//хороший вариант
+// function BlinkingBackground() {
+//   const [isLeft, setLeft] = useState(true);
+//   const onMouseMove = (evt) => setLeft(evt.nativeEvent.offsetX < 100);
+//   const style = {
+//     backgroundColor: isLeft ? 'blue' : 'red',
+//   };
+//   return <div style={style} onMouseMove={onMouseMove} />;
+// }
+
+// управление элементом через DOM
+// function PhantomCursor() {
+//   const element = useRef();
+//   const onMouseMove = (evt) => {
+//     element.current.style.left = `${evt.nativeEvent.offsetX}px`;
+//     element.current.style.top = `${evt.nativeEvent.offsetY}px`;
+//   };
+//   return (
+//     <div style={{ position: 'relative' }} onMouseMove={onMouseMove}>
+//       <img style={{ position: 'absolute' }} ref={element} src='/images/fake_cursor.png' alt='' />
+//     </div>
+//   );
+// }
+
+//пример рендера внутри функций
+
+function Icon({ type }) {
+  return <img src={`https://reactquickly.dev/builds/ch06/rq06-push-button/images/${type}.png`} width='16' alt='' />;
 }
-function FilterButton({ current, flag, setFilter, children }) {
-  const style = {
-    border: '1px solid dimgray',
-    background: current === flag ? 'dimgray' : 'transparent',
-    color: current === flag ? 'white' : 'dimgray',
-    padding: '4px 10px',
-  };
+function Button({ label, ButtonIcon }) {
+  const [pressed, setPressed] = useState(false);
   return (
-    <button style={style} onClick={() => setFilter(flag)}>
-      {children}
+    <button onClick={() => setPressed((p) => !p)}>
+      <ButtonIcon pressed={pressed} />
+      {label}
     </button>
   );
 }
-function Task({ task, done, markDone }) {
-  const paragraphStyle = {
-    color: done ? 'gray' : 'black',
-    borderLeft: '2px solid',
-  };
-  const buttonStyle = {
-    border: 'none',
-    background: 'transparent',
-    display: 'inline',
-    color: 'inherit',
-  };
-  return (
-    <p style={paragraphStyle}>
-      <button style={buttonStyle} onClick={done ? null : markDone}>
-        {done ? '✓ ' : '◯ '}
-      </button>
-      {task}
-    </p>
-  );
+function LockIcon({ pressed }) {
+  return pressed ? <Icon type='lock' /> : <Icon type='unlock' />;
 }
-function TodoApplication({ initialList }) {
-  const [todos, setTodos] = useState(initialList);
-  const [hideDone, setHideDone] = useState(false);
-  const filteredTodos = hideDone ? todos.filter(({ done }) => !done) : todos;
-  return (
-    <main>
-      <div style={{ display: 'flex' }}>
-        <FilterButton current={hideDone} flag={false} setFilter={setHideDone}>
-          Show all
-        </FilterButton>
-        <FilterButton current={hideDone} flag={true} setFilter={setHideDone}>
-          Hide done
-        </FilterButton>
-      </div>
-      {filteredTodos.map((todo, index) => (
-        <Task key={todo.task} task={todo.task} done={todo.done} markDone={() => setTodos((value) => markDone(value, todo.index))} />
-      ))}
-    </main>
-  );
+function LockButton() {
+  return <Button label='Lock' ButtonIcon={LockIcon} />;
 }
+
 function App() {
-  const items = [
-    { task: 'Feed the plants', done: false, index: 0 },
-    { task: 'Water the dishes', done: false, index: 1 },
-    { task: 'Clean the cat', done: false, index: 2 },
-  ];
-  return <TodoApplication initialList={items} />;
+  return <LockButton />;
 }
 export default App;
